@@ -1,0 +1,8 @@
+.popup {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #ffe8e8;
+  border: 1px solid #ff9999;
+  border-radius: 10px;
+  display: inline-block;
+}
