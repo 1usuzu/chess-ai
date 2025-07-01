@@ -1,5 +1,5 @@
 // Đường dẫn này giả định ai.js nằm trong packages/ai-core so với thư mục server
-const { findBestMove } = require('../packages/ai-core/ai.js');
+const { findBestMove } = require('../ai-core/ai');
 
 // Hàm controller mới để xử lý yêu cầu tìm nước đi của AI
 const getAiMove = (req, res) => {

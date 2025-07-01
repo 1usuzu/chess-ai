@@ -12,7 +12,11 @@ function App() {
   if (screen === 'home') {
     return (
       <div className={styles.container}>
-        <h1 className={styles.title}>♟️ Cờ Vua AI</h1>
+        <h1 className={styles.title}>
+          Trí tuệ nhân tạo - Nhóm 4
+          <br />
+          Cờ vua
+        </h1>
         <p className={styles.subtitle}>Chọn chế độ chơi</p>
 
         <div className={styles.modeBoxWrapper}>

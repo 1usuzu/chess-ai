@@ -1,7 +1,5 @@
-// index.js
-
 const { Chess } = require("chess.js");
-const { findBestMove } = require("./ai"); // Gọi từ ai.js (trong thư mục cùng cấp)
+const { findBestMove } = require("./ai");
 const prompt = require("prompt-sync")();
 
 // --- Chọn màu quân cờ ---
@@ -53,7 +51,7 @@ while (true) {
         checkGameOver();
     } else {
         console.log("\n AI đang suy nghĩ...");
-        const result = findBestMove(game.fen(), 3);
+        const result = findBestMove(game.fen(), 3); // Sử dụng độ sâu 3 cho AI
 
         console.log("\n Điểm đánh giá các nước đi của AI:");
         result.scores.forEach(({ move, score }) => {

@@ -105,6 +105,29 @@ function GameScreen({ mode, playerColor, goHome }) {
 
       <div
         style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '1.5rem',
+          marginBottom: '1.2rem',
+        }}
+      >
+        <span style={{
+          fontSize: '1.25rem',
+          fontWeight: 600,
+          color: game.turn() === 'w' ? '#4e8cff' : '#10b981',
+          background: game.turn() === 'w' ? '#e6f0ff' : '#e6fff3',
+          borderRadius: '8px',
+          padding: '0.4rem 1.2rem',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+          letterSpacing: 0.5,
+        }}>
+          Đang đến lượt: {game.turn() === 'w' ? 'Trắng' : 'Đen'}
+        </span>
+      </div>
+
+      <div
+        style={{
           display: 'grid',
           gridTemplateColumns: 'auto 200px',
           justifyContent: 'center',
@@ -123,22 +146,70 @@ function GameScreen({ mode, playerColor, goHome }) {
           setActiveSquare={setActiveSquare}
           setLegalSquares={setLegalSquares}
         />
-        <MoveHistory history={history} />
+        <MoveHistory history={history} turn={game.turn()} />
       </div>
 
       <div
         style={{
-          marginTop: '1.5rem',
+          marginTop: '2.5rem',
           display: 'flex',
-          gap: '1rem',
+          gap: '2rem',
           justifyContent: 'center',
         }}
       >
-<button onClick={resetGame}>🔁 Chơi lại</button>
-        <button onClick={goHome}>🏠 Trang Chủ</button>
+        <button
+          onClick={resetGame}
+          style={{
+            fontSize: '1.4rem',
+            padding: '1rem 2.5rem',
+            borderRadius: '14px',
+            border: 'none',
+            background: '#4e8cff',
+            color: '#fff',
+            fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+            cursor: 'pointer',
+            transition: 'background 0.15s',
+          }}
+        >
+        Chơi lại
+        </button>
+        <button
+          onClick={goHome}
+          style={{
+            fontSize: '1.4rem',
+            padding: '1rem 2.5rem',
+            borderRadius: '14px',
+            border: 'none',
+            background: '#10b981',
+            color: '#fff',
+            fontWeight: 600,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+            cursor: 'pointer',
+            transition: 'background 0.15s',
+          }}
+        >
+        Trang Chủ
+        </button>
       </div>
 
-      {gameOver && <GameOverPopup winner={winner} onRetry={resetGame} />}
+      {gameOver && (
+        <GameOverPopup
+          winner={winner}
+          onRetry={resetGame}
+          customStyle={{
+            fontSize: '2.2rem',
+            padding: '2.5rem 2rem',
+            borderRadius: '18px',
+            background: '#fff',
+            color: '#222',
+            boxShadow: '0 6px 32px rgba(0,0,0,0.18)',
+            textAlign: 'center',
+            fontWeight: 700,
+            zIndex: 1000,
+          }}
+        />
+      )}
       {showInvalid && <InvalidMovePopup onClose={() => setShowInvalid(false)} />}
     </div>
   );

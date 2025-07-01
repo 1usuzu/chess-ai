@@ -5,6 +5,33 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   max-height: 400px;
   overflow-y: auto;
-  min-width: 180px;
+  min-width: 220px;
   text-align: left;
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+}
+.historyTable th, .historyTable td {
+  border: 1px solid #e5e7eb;
+  padding: 0.3rem 0.5rem;
+  text-align: center;
+  font-size: 1rem;
+}
+.historyTable th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+.activeRowWhite {
+  background: #e6f0ff;
+}
+.activeRowBlack {
+  background: #e6fff3;
+}
+.turnInfo {
+  margin-top: 0.5rem;
+  font-size: 1.05rem;
+  text-align: center;
 }

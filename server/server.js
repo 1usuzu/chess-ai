@@ -5,7 +5,7 @@ const cors = require('cors');
 const gameRoutes = require('./routes/gameRoutes'); 
 
 const app = express();
-const PORT = 5000;
+const PORT = 5001;
 
 // Sử dụng các middleware cần thiết
 app.use(cors());
