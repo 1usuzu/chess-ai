@@ -1,0 +1,13 @@
+{
+  "name": "chess-logic-game",
+  "version": "1.0.0",
+  "description": "Chess game logic implementation",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": ["chess", "game", "logic"],
+  "author": "",
+  "license": "MIT"
+}
