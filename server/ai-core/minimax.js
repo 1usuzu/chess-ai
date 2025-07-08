@@ -1,7 +1,12 @@
 const { evaluateBoard } = require('./evaluate');
 
-// Hàm Quiescence Search
-function quiescence(game, alpha, beta, isMaximisingPlayer) {
+// ===== QUISCENCE SEARCH (GIỚI HẠN SÂU) =====
+function quiescence(game, alpha, beta, isMaximisingPlayer, depth = 0) {
+    const MAX_QUIESCENCE_DEPTH = 4;
+    if (depth >= MAX_QUIESCENCE_DEPTH) {
+        return evaluateBoard(game.board());
+    }
+
     let stand_pat = evaluateBoard(game.board());
 
     if (isMaximisingPlayer) {
@@ -15,7 +20,7 @@ function quiescence(game, alpha, beta, isMaximisingPlayer) {
     const moves = game.moves({ verbose: true }).filter(m => m.captured);
     for (const move of moves) {
         game.move(move);
-        const score = quiescence(game, alpha, beta, !isMaximisingPlayer);
+        const score = quiescence(game, alpha, beta, !isMaximisingPlayer, depth + 1);
         game.undo();
 
         if (isMaximisingPlayer) {
@@ -30,29 +35,35 @@ function quiescence(game, alpha, beta, isMaximisingPlayer) {
     return isMaximisingPlayer ? alpha : beta;
 }
 
-// Hàm Minimax với Alpha-Beta Pruning
+// ===== MINIMAX CÓ PHÁT HIỆN CHIẾU HẾT =====
 function minimax(depth, game, alpha, beta, isMaximisingPlayer) {
-    if (depth === 0) return quiescence(game, alpha, beta, isMaximisingPlayer);
+    if (depth === 0) return quiescence(game, alpha, beta, isMaximisingPlayer, 0);
 
-    // Sắp xếp nước đi: ưu tiên nước ăn quân trước
     let moves = game.moves({ verbose: true });
     moves.sort((a, b) => {
-        // Nước ăn quân được ưu tiên hơn
         if (a.captured && !b.captured) return -1;
         if (!a.captured && b.captured) return 1;
-        // Ưu tiên nước phong cấp
         if (a.promotion && !b.promotion) return -1;
         if (!a.promotion && b.promotion) return 1;
         return 0;
     });
+
     if (moves.length === 0) return evaluateBoard(game.board());
 
     if (isMaximisingPlayer) {
         let maxEval = -Infinity;
         for (const move of moves) {
             game.move(move);
+
+            // ✅ Nếu chiếu hết sau nước đi này → thắng tuyệt đối
+            if (game.isCheckmate()) {
+                game.undo();
+                return Infinity;
+            }
+
             const evalScore = minimax(depth - 1, game, alpha, beta, false);
             game.undo();
+
             maxEval = Math.max(maxEval, evalScore);
             alpha = Math.max(alpha, evalScore);
             if (beta <= alpha) break;
@@ -62,8 +73,16 @@ function minimax(depth, game, alpha, beta, isMaximisingPlayer) {
         let minEval = Infinity;
         for (const move of moves) {
             game.move(move);
+
+            // ✅ Nếu chiếu hết sau nước đi này → thua tuyệt đối
+            if (game.isCheckmate()) {
+                game.undo();
+                return -Infinity;
+            }
+
             const evalScore = minimax(depth - 1, game, alpha, beta, true);
             game.undo();
+
             minEval = Math.min(minEval, evalScore);
             beta = Math.min(beta, evalScore);
             if (beta <= alpha) break;

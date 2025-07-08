@@ -1,47 +1,74 @@
 const { Chess } = require('chess.js');
 const { minimax } = require('./minimax');
-const { getPieceBaseValue } = require('./evaluate');
+const { evaluateBoard } = require('./evaluate');
 
-// AI là quân đen
-function findBestMove(fen, depth) {
+function findBestMove(fen, {
+    maxDepth = 4,
+    timeLimit = 3000,
+    aiColor = 'b',
+    returnScores = false
+} = {}) {
     const game = new Chess(fen);
+    const startTime = Date.now();
+    let bestMove = null;
+    let bestEval = aiColor === 'w' ? -Infinity : Infinity;
+    let moveScores = [];
+
+    const isMaximising = aiColor === 'w';
+
     const moves = game.moves({ verbose: true });
 
-    let bestMoves = [];
-    let bestEval = Infinity;
-    const moveScores = [];
+    // Duyệt từ depth = 1 đến maxDepth (iterative deepening)
+    for (let depth = 1; depth <= maxDepth; depth++) {
+        let currentBestEval = isMaximising ? -Infinity : Infinity;
+        let currentBestMoves = [];
+        let currentScores = [];
 
-    for (const move of moves) {
-        game.move(move);
-        try {
-            // Đánh giá điểm AI là đen - minimizing
-            let evalScore = minimax(depth - 1, game, -Infinity, Infinity, true); // maximizing cho trắng
+        for (const move of moves) {
+            if (Date.now() - startTime > timeLimit) break;
 
-            // Nếu nước đi dẫn đến chiếu hết
-            if (game.isCheckmate()) {
-                evalScore = -100000; // Đen chiếu hết => điểm cực thấp (tốt cho đen)
-            } else if (game.inCheck()) {
-                evalScore -= 5; // Thưởng nhỏ nếu chiếu vua trắng
-            }
-            moveScores.push({
-                move: `${move.from}${move.to}`,
-                score: evalScore
-            });
-            if (evalScore < bestEval) {
-                bestEval = evalScore;
-                bestMoves = [move];
-            } else if (evalScore === bestEval) {
-                bestMoves.push(move);
-            }
-        } finally {
+            game.move(move);
+            let score = minimax(depth - 1, game, -Infinity, Infinity, !isMaximising);
             game.undo();
+
+            // Nếu là nước chiếu hết → chọn ngay
+            if (game.isCheckmate()) {
+                score = isMaximising ? Infinity : -Infinity;
+            }
+
+            currentScores.push({ move: `${move.from}${move.to}`, score });
+
+            if (isMaximising) {
+                if (score > currentBestEval) {
+                    currentBestEval = score;
+                    currentBestMoves = [move];
+                } else if (score === currentBestEval) {
+                    currentBestMoves.push(move);
+                }
+            } else {
+                if (score < currentBestEval) {
+                    currentBestEval = score;
+                    currentBestMoves = [move];
+                } else if (score === currentBestEval) {
+                    currentBestMoves.push(move);
+                }
+            }
         }
+
+        if (Date.now() - startTime > timeLimit) break;
+
+        bestEval = currentBestEval;
+        bestMove = currentBestMoves.length > 0
+            ? currentBestMoves[Math.floor(Math.random() * currentBestMoves.length)]
+            : bestMove;
+        moveScores = currentScores;
     }
-    // Nếu có nhiều nước tốt nhất, chọn ngẫu nhiên
-    const chosenMove = bestMoves.length > 0 ? bestMoves[Math.floor(Math.random() * bestMoves.length)] : null;
+
     return {
-        bestMove: chosenMove ? `${chosenMove.from}${chosenMove.to}` : null,
-        scores: moveScores
+        bestMove: bestMove ? `${bestMove.from}${bestMove.to}` : null,
+        evaluation: bestEval,
+        timeUsed: Date.now() - startTime,
+        ...(returnScores && { scores: moveScores })
     };
 }
 

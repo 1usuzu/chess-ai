@@ -33,7 +33,45 @@ function checkGameOver() {
     }
 }
 
+// --- AI đi nước đầu nếu là trắng ---
+function aiPlaysFirstMove() {
+    console.log("AI (Trắng) đi trước...");
+
+    const result = findBestMove(game.fen(), {
+        maxDepth: 4,
+        timeLimit: 2000,
+        aiColor: 'w',
+        returnScores: true
+    });
+
+    let moveObj = result.bestMove;
+    if (typeof moveObj === 'string') {
+        moveObj = { from: moveObj.slice(0, 2), to: moveObj.slice(2, 4) };
+    }
+
+    const move = game.move(moveObj, { sloppy: true });
+    if (!move) {
+        // console.log("AI không thể đi nước đầu tiên!");
+        process.exit(1);
+    }
+
+    // console.log("\nĐiểm đánh giá các nước đi đầu của AI:");
+    result.scores.forEach(({ move, score }) => {
+        console.log(`- ${move}: ${score}`);
+    });
+
+    console.log(`\n🤖 AI (Trắng) đi: ${move.from} → ${move.to}`);
+    printBoard();
+    checkGameOver();
+}
+
+// --- In bàn cờ lần đầu
 printBoard();
+
+// Nếu AI là trắng → cho AI đi trước
+if (aiColor === 'w') {
+    aiPlaysFirstMove();
+}
 
 // --- VÒNG LẶP TRÒ CHƠI ---
 while (true) {
@@ -42,24 +80,40 @@ while (true) {
         const move = game.move(moveInput, { sloppy: true });
 
         if (!move) {
-            console.log(" Nước đi không hợp lệ, thử lại.");
+            console.log("Nước đi không hợp lệ, thử lại.");
             continue;
         }
 
-        console.log(`\n Bạn (${playerColor === 'w' ? 'Trắng' : 'Đen'}) đi: ${move.from} → ${move.to}`);
+        console.log(`\n👤 Bạn (${playerColor === 'w' ? 'Trắng' : 'Đen'}) đi: ${move.from} → ${move.to}`);
         printBoard();
         checkGameOver();
     } else {
-        console.log("\n AI đang suy nghĩ...");
-        const result = findBestMove(game.fen(), 3); // Sử dụng độ sâu 3 cho AI
+        // console.log("\nAI đang suy nghĩ...");
 
-        console.log("\n Điểm đánh giá các nước đi của AI:");
+        const result = findBestMove(game.fen(), {
+            maxDepth: 4,
+            timeLimit: 2000,
+            aiColor: aiColor,
+            returnScores: true
+        });
+
+        // console.log("\nĐiểm đánh giá các nước đi của AI:");
         result.scores.forEach(({ move, score }) => {
             console.log(`- ${move}: ${score}`);
         });
 
-        const move = game.move(result.bestMove, { sloppy: true });
-        console.log(`\n AI (${aiColor === 'w' ? 'Trắng' : 'Đen'}) đi: ${move.from} → ${move.to}`);
+        let moveObj = result.bestMove;
+        if (typeof moveObj === 'string') {
+            moveObj = { from: moveObj.slice(0, 2), to: moveObj.slice(2, 4) };
+        }
+
+        const move = game.move(moveObj, { sloppy: true });
+        if (!move) {
+            // console.log("AI không tìm được nước đi hợp lệ!");
+            process.exit(1);
+        }
+
+        console.log(`\nAI (${aiColor === 'w' ? 'Trắng' : 'Đen'}) đi: ${move.from} → ${move.to}`);
         printBoard();
         checkGameOver();
     }

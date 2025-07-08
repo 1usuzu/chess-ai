@@ -138,12 +138,16 @@ function getPieceValue(piece, x, y, board, bishopCount) {
 
     if (piece.type === 'b' && bishopCount[piece.color] === 2) value += 0.5;
 
-    // Gần quân mình
+    // Gần quân mình (đã sửa kiểm tra biên)
     let nearbyFriend = 0;
     for (let dx of [-1, 0, 1])
         for (let dy of [-1, 0, 1])
-            if ((dx || dy) && board[x + dx]?.[y + dy]?.color === piece.color)
-                nearbyFriend++;
+            if (dx || dy) {
+                const nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+                    if (board[nx][ny]?.color === piece.color) nearbyFriend++;
+                }
+            }
 
     if (nearbyFriend === 0) value -= 1.5;
     else if (nearbyFriend > 1) value += 0.5;
@@ -155,14 +159,17 @@ function getPieceValue(piece, x, y, board, bishopCount) {
         if (dist <= 3) value += 0.5;
     }
 
-    // Tấn công quân mạnh hơn
+    // Tấn công quân mạnh hơn (đã sửa kiểm tra biên)
     for (let dx of [-1, 0, 1])
         for (let dy of [-1, 0, 1])
             if (dx || dy) {
-                const target = board[x + dx]?.[y + dy];
-                if (target && target.color !== piece.color) {
-                    if (getPieceBaseValue(piece.type) <= getPieceBaseValue(target.type)) {
-                        value += 1;
+                const nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+                    const target = board[nx][ny];
+                    if (target && target.color !== piece.color) {
+                        if (getPieceBaseValue(piece.type) <= getPieceBaseValue(target.type)) {
+                            value += 1;
+                        }
                     }
                 }
             }
@@ -170,7 +177,41 @@ function getPieceValue(piece, x, y, board, bishopCount) {
     return (piece.color === 'w' ? 1 : -1) * value;
 }
 
+// Thêm cache cho evaluateBoard
+let evaluationCache = new Map();
+
+// Hàm tạo hash nhanh cho board
+function createBoardHash(board) {
+    let hash = '';
+    for (let x = 0; x < 8; x++)
+        for (let y = 0; y < 8; y++) {
+            const p = board[x][y];
+            hash += p ? p.type + p.color : '.';
+        }
+    return hash;
+}
+
+// Hàm đánh giá nhanh (chỉ tính material)
+function quickEvaluate(board) {
+    let score = 0;
+    for (let x = 0; x < 8; x++)
+        for (let y = 0; y < 8; y++) {
+            const piece = board[x][y];
+            if (piece) score += (piece.color === 'w' ? 1 : -1) * getPieceBaseValue(piece.type);
+        }
+    return score;
+}
+
+// Dọn dẹp cache khi quá lớn
+function clearEvaluationCache() {
+    if (evaluationCache.size > 10000) evaluationCache.clear();
+}
+
+// Nâng cấp evaluateBoard với cache
 function evaluateBoard(board) {
+    const hash = createBoardHash(board);
+    if (evaluationCache.has(hash)) return evaluationCache.get(hash);
+
     let score = 0;
     const bishopCount = { w: 0, b: 0 };
 
@@ -186,7 +227,13 @@ function evaluateBoard(board) {
             if (piece) score += getPieceValue(piece, x, y, board, bishopCount);
         }
 
+    evaluationCache.set(hash, score);
     return score;
 }
 
-module.exports = { evaluateBoard, getPieceBaseValue };
+module.exports = { 
+    evaluateBoard, 
+    getPieceBaseValue, 
+    clearEvaluationCache, 
+    quickEvaluate 
+};
