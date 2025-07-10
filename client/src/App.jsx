@@ -20,7 +20,6 @@ function App() {
         <p className={styles.subtitle}>Chọn chế độ chơi</p>
 
         <div className={styles.modeBoxWrapper}>
-          {/* Người vs Người → vẫn chọn quân */}
           <div onClick={() => {
             setMode("pvp");
             setScreen("chooseColor");
