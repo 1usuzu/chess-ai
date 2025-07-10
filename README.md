@@ -14,7 +14,7 @@
 1. **Clone repository:**
    ```bash
    git clone <repo-url>
-   cd chess-ai-project
+   cd chess-ai
    ```
 2. **Cài đặt backend:**
    ```bash
