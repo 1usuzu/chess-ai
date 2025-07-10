@@ -20,11 +20,20 @@ function App() {
         <p className={styles.subtitle}>Chọn chế độ chơi</p>
 
         <div className={styles.modeBoxWrapper}>
-          <div onClick={() => { setMode("pvp"); setScreen("chooseColor"); }} className={styles.modeBox}>
+          {/* Người vs Người → vẫn chọn quân */}
+          <div onClick={() => {
+            setMode("pvp");
+            setScreen("chooseColor");
+          }} className={styles.modeBox}>
             <div className={styles.icon}>👤👤</div>
             <div className={styles.modeTitle}>Người vs Người</div>
           </div>
-          <div onClick={() => { setMode("pve"); setScreen("chooseColor"); }} className={styles.modeBox}>
+
+          <div onClick={() => {
+            setMode("pve");
+            setPlayerColor("white");
+            setScreen("game");
+          }} className={styles.modeBox}>
             <div className={styles.icon}>👤🤖</div>
             <div className={styles.modeTitle}>Người vs AI</div>
           </div>
@@ -40,11 +49,17 @@ function App() {
         <p className={styles.subtitle}>Bạn muốn chơi với quân:</p>
 
         <div className={styles.modeBoxWrapper}>
-          <div onClick={() => { setPlayerColor('white'); setScreen('game'); }} className={styles.modeBox}>
+          <div onClick={() => {
+            setPlayerColor('white');
+            setScreen('game');
+          }} className={styles.modeBox}>
             <div className={styles.icon}>⚪</div>
             <div className={styles.modeTitle}>Trắng (đi trước)</div>
           </div>
-          <div onClick={() => { setPlayerColor('black'); setScreen('game'); }} className={styles.modeBox}>
+          <div onClick={() => {
+            setPlayerColor('black');
+            setScreen('game');
+          }} className={styles.modeBox}>
             <div className={styles.icon}>⚫</div>
             <div className={styles.modeTitle}>Đen (đi sau)</div>
           </div>
